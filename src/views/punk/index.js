@@ -15,7 +15,7 @@ import {
 import { useWeb3React } from "@web3-react/core";
 import RequestAccess from "../../components/request-access";
 import PunkCard from "../../components/punk-card";
-import {usePlatziPunkData} from "../../hooks/usePlatziPunksData";
+import { usePlatziPunkData } from "../../hooks/usePlatziPunksData";
 import { useParams } from "react-router-dom";
 import Loading from "../../components/loading";
 import { useState } from "react";
@@ -23,63 +23,61 @@ import usePlatziPunks from "../../hooks/usePlatziPunks";
 
 const Punk = () => {
   const { active, account, library } = useWeb3React();
-  const {tokenId} = useParams();
-  const {loading, punk, update} = usePlatziPunkData(tokenId);
+  const { tokenId } = useParams();
+  const { loading, punk, update } = usePlatziPunkData(tokenId);
   const toast = useToast();
   const [transfering, setTransfering] = useState(false);
   const platziPunks = usePlatziPunks();
 
   const transfer = () => {
-   setTransfering(true);
+    setTransfering(true);
 
-   const address = prompt("Ingresa la direccion:");
+    const address = prompt("Ingresa la direccion:");
 
-   const isAddress = library.utils.isAddress(address)
+    const isAddress = library.utils.isAddress(address);
 
-   if(!isAddress)
-   {
+    if (!isAddress) {
       toast({
-        "title": 'Direccion invalida',
-        "desciption": "la direccion no es de ethereum",
-        'status': 'error'
+        title: "Direccion invalida",
+        desciption: "la direccion no es de ethereum",
+        status: "error",
       });
       setTransfering(false);
-   }else{
-    platziPunks.methods.safeTransferFrom(
-      punk.owner,
-      address,
-      punk.tokenId,
-    ).send({
-      from: account,
-    }).on('error', error => {
-      toast({
-        "title": 'Error',
-        "description": error.message,
-        'status': 'error'
-      });
-      setTransfering(false);
-    })
-    .on('transactionHash', tx => {
-      toast({
-        "title": 'Transaction Hash',
-        "description": tx,
-        'status': 'info'
-      });
-    })
-    .on('receipt', () => {
-      toast({
-        "title": 'Transaction sent!',
-        "description": 'NFT successfully sent!',
-        'status': 'success',
-      });
-      setTransfering(false);
-      update();
-    })
-   }
-  }
+    } else {
+      platziPunks.methods
+        .safeTransferFrom(punk.owner, address, punk.tokenId)
+        .send({
+          from: account,
+        })
+        .on("error", (error) => {
+          toast({
+            title: "Error",
+            description: error.message,
+            status: "error",
+          });
+          setTransfering(false);
+        })
+        .on("transactionHash", (tx) => {
+          toast({
+            title: "Transaction Hash",
+            description: tx,
+            status: "info",
+          });
+        })
+        .on("receipt", () => {
+          toast({
+            title: "Transaction sent!",
+            description: "NFT successfully sent!",
+            status: "success",
+          });
+          setTransfering(false);
+          update();
+        });
+    }
+  };
 
   if (!active) return <RequestAccess />;
-  if(loading) return <Loading />
+  if (loading) return <Loading />;
   return (
     <Stack
       spacing={{ base: 8, md: 10 }}
@@ -95,7 +93,12 @@ const Punk = () => {
           name={punk.name}
           image={punk.image}
         />
-        <Button isLoading={transfering} onClick={transfer} disabled={account !== punk.owner} colorScheme="green">
+        <Button
+          isLoading={transfering}
+          onClick={transfer}
+          disabled={account !== punk.owner}
+          colorScheme="green"
+        >
           {account !== punk.owner ? "No eres el dueño" : "Transferir"}
         </Button>
       </Stack>
